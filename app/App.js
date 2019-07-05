@@ -1,13 +1,55 @@
-
 import React, { Component } from 'react';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import SQLite from "react-native-sqlite-storage";
+import { ListItem, List } from 'react-native-elements';
 import { StyleSheet, FlatList,TouchableOpacity,Text, ListView,View, Button, Alert } from 'react-native';
 var db = SQLite.openDatabase({name:"testDB",  createFromLocation: 1});
 //var db = SQLite.openDatabase({ name: 'my_db.sqlite'});
 export default class App extends Component<{}> {
- constructor(){
+  render(){
+  return(
+    <MapView
+    provider={PROVIDER_GOOGLE}
+    style={ styles.map }
+    initialRegion={{
+      latitude: 37.78825,
+        longitude: -122.4324,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421
+
+    }}
+    showsUserLocation
+    />
+  );
+}
+}
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  map: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+});
+
+
+
+ /*constructor(){
    super()
    this.state = {data:[]}
+   const url = "https://image.flaticon.com/icons/svg/25/25694.svg";
+
  }
 
   componentDidMount(){
@@ -18,14 +60,13 @@ export default class App extends Component<{}> {
     db.transaction(tx => {
        console.log('inside db function', tx);
       tx.executeSql(
-      'SELECT * FROM listinginfo LIMIT 10',
+      'SELECT * FROM listinginfo LIMIT 20',
        [], (tx, results)=>{
          console.log("this is results", results);
          var len = results. rows.length;
          for( let i = 0; i < len ; i++){
           let row = results.rows.item(i);
            console.log("this is raw row", row);
-           console.log("this is row",` address:${row.price}`)
            obj = this.parseData(row);
            console.log("this is test", obj);
            that.state.data.push(obj);
@@ -72,52 +113,43 @@ export default class App extends Component<{}> {
     });
   }
   render() {
+    console.log("test");
+      console.log(this.test);
     census = this.state.data;
+    let pic = {
+      uri: "https://image.flaticon.com/icons/svg/25/25694.svg"
+    }
     return (
-      <View style={styles.container}>
+      <View style={styles.main}>
+
       <FlatList
-       // keyExtractor={this._keyExtractor}
         data={this.state.data}
       keyExtractor={(item, index) => index.toString()}
-        //renderItem={this.renderItem.bind(this)}
         renderItem={({item }) =>(
-        <Text>{item.price},{item.longitude},{item.latitude}, {item.address} </Text>
+          <ListItem
+          title={`${item.address}, ${item.longitude},${item.latitude}`}
+          leftAvatar = {{source:{pic}}}
+
+          />
         ) }
       />
       </View>
     );
   }
-      //{!census ?"" :(
-      //<FlatList
-        //data={this.state.data}
-        //renderItem={({item }) =>
-        //<Text>{item.longitude} </Text>
-       // }
-       ///>
-    //)
-      //}
 
 
-
-  //    </View>
-   // );
- // }
-
-SampleFunction1(){
-
-    Alert.alert("Function Without Argument");
-
-  }
+}*/
 
 
-}
-
-
-const styles = StyleSheet.create({
+const styles_old = StyleSheet.create({
+  main:{
+    flex:1,
+    flexDirection:'row',
+    marginBottom:3
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
-
     margin: 15
   }
 });
