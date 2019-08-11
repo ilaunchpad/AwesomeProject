@@ -3,49 +3,33 @@ import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import SQLite from "react-native-sqlite-storage";
 import { ListItem, List } from 'react-native-elements';
 import { StyleSheet, FlatList,TouchableOpacity,Text, ListView,View, Button, Alert } from 'react-native';
+import {createStackNavigator, createAppContainer} from 'react-navigation';
+import camOverLay from './screen/camOverLay';
 var db = SQLite.openDatabase({name:"testDB",  createFromLocation: 1});
 //var db = SQLite.openDatabase({ name: 'my_db.sqlite'});
-export default class App extends Component<{}> {
-  render(){
-  return(
-    <MapView
-    provider={PROVIDER_GOOGLE}
-    style={ styles.map }
-    initialRegion={{
-      latitude: 37.78825,
-        longitude: -122.4324,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421
-
-    }}
-    showsUserLocation
-    />
-  );
+//
+//
+//
+class HomeScreen extends Component{
+ render(){
+   return (
+      <View style={styles.container}>
+     <Text>Home Screen</Text>
+      <Button
+      title = "Go to map"
+     onPress={() => this.props.navigation.push('mapScreen')}
+      />
+      <Button
+      title = "Go to Live View"
+     onPress={() => this.props.navigation.push('camScreen')}
+      />
+      </View>
+    );
+ }
 }
-}
+ class ListViewApp extends Component {
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  map: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-});
-
-
-
- /*constructor(){
+ constructor(){
    super()
    this.state = {data:[]}
    const url = "https://image.flaticon.com/icons/svg/25/25694.svg";
@@ -60,7 +44,7 @@ const styles = StyleSheet.create({
     db.transaction(tx => {
        console.log('inside db function', tx);
       tx.executeSql(
-      'SELECT * FROM listinginfo LIMIT 20',
+      'SELECT * FROM listinginfo LIMIT 90',
        [], (tx, results)=>{
          console.log("this is results", results);
          var len = results. rows.length;
@@ -94,62 +78,130 @@ const styles = StyleSheet.create({
    return obj;
  }
 
-  SampleFunction2(){
-     arr = []
-     db.transaction((tx) =>{
-       console.log("this is arr before")
-     tx.executeSql('SELECT * FROM listinginfo LIMIT 5', [], (tx,results) =>{
-        console.log("Query result");
-         var len = results. rows.length;
-         for( let i = 0; i < len ; i++){
-          let row = results.rows.item(i);
-           console.log("this is row",` address:${row.data_longitude}`)
-           arr.push(row.data_longitude)
-           //console.log(arr)
-     this.setState({ex_list:[
-       {name:row.data_longitude}]})
-         }
-      });
-    });
-  }
+
+   /*_renderItem =({item}) =>(
+   <MyListItem
+     id={item.id}
+     onPressItem={this._onPressItem}
+     selected={!!!this.state.selected.get(item.id)}
+     title={item.title}
+   />
+);*/
+
+
+ getListViewItem = (item) => {
+        Alert.alert(item.price);
+    }
+
   render() {
     console.log("test");
-      console.log(this.test);
+    console.log(this.test);
     census = this.state.data;
     let pic = {
       uri: "https://image.flaticon.com/icons/svg/25/25694.svg"
     }
     return (
       <View style={styles.main}>
-
-      <FlatList
+      <FlatList contentContainetStyle={styles.flat}
+      ItemSeparatorComponent={this.FlatListItemSeparator}
         data={this.state.data}
-      keyExtractor={(item, index) => index.toString()}
-        renderItem={({item }) =>(
-          <ListItem
-          title={`${item.address}, ${item.longitude},${item.latitude}`}
-          leftAvatar = {{source:{pic}}}
+        keyExtractor={(item, index) => index.toString()}
 
-          />
-        ) }
+        renderItem={({item }) =>(
+          //<Text>{item.address}</Text>
+
+        <ListItem
+          title={`${item.address}, ${item.longitude},${item.latitude}`}
+          //leftAvatar = {{source:{pic}}}
+          onPress={this.getListViewItem.bind(this,item)}
+       />
+        )}
+      onEndReached={this._handleLoadMore}
+      onEndREachedThreshold={0.5}
+      initialNumToRender={10}
       />
       </View>
     );
   }
 
 
-}*/
+}
 
 
-const styles_old = StyleSheet.create({
+
+class mapOverLay extends Component<{}>{
+ render(){
+  return(
+    <MapView
+    provider={PROVIDER_GOOGLE}
+    style={ map_styles.map }
+    initialRegion={{
+      latitude: 37.78825,
+        longitude: -122.4324,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421
+
+    }}
+    showsUserLocation={true}
+    />
+  );
+}
+}
+
+const AppNavigator = createStackNavigator({
+  Home: {screen:HomeScreen},
+  mapScreen:{screen:mapOverLay},
+  camScreen:{screen:camOverLay},
+   //initialRouteName: 'Home',
+});
+export default createAppContainer(AppNavigator);
+
+const map_styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  map: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+});
+
+
+const styles = StyleSheet.create({
   main:{
     flex:1,
     flexDirection:'row',
     marginBottom:3
   },
+  home:{
+    flex:1,
+    alignItems:"center",
+    justifyContent:"center"
+  },
   container: {
     flex: 1,
+    alignItems:"center",
     justifyContent: 'center',
     margin: 15
+  },
+  heading:{
+    fontSize:20,
+    textAlign:"center",
+    margin:10
+  },
+  flat:{
+   flex: 1,
+    flexDirection: 'column',
+    height:'100%',
+    width:'100%'
   }
 });
